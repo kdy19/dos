@@ -6,7 +6,7 @@ import module.thread
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-mode', help='[process, thread, async]', type=str, required=True)
+    parser.add_argument('-mode', help='[process, thread]', type=str, required=True)
     parser.add_argument('-url', help='ex) http://google.com', type=str, required=True)
     parser.add_argument('-method', help='수행할 공격 선택 [ex) GET, POST, slowloris]',
                         type=str, default='GET', required=False)
@@ -24,13 +24,13 @@ def main():
     method = args.method.lower()
     attack_time = args.time
 
-    if (not mode == 'process') and (not mode == 'thread') and (not mode == 'async'):
-        raise Exception('[process, thread, async] 중 선택해 주세요!')
+    if (not mode == 'process') and (not mode == 'thread'):
+        raise Exception('[process, thread] 중 선택해 주세요!')
 
     if mode == 'process':
         if method == 'get':
             module.process.run(url, method, args.pCount, attack_time)
-    elif mode == 'thread':
+    else:
         if method == 'get':
             module.thread.run(url, method, args.tCount, attack_time)
 
